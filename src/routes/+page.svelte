@@ -143,12 +143,16 @@
 	function roll5StarTrekker() {
 		const seed = Math.random() * FLOATING_POINT_ADJUSTMENT;
 		const result =
-			seed < 0.5 * FLOATING_POINT_ADJUSTMENT
+			seed < 0.5 * FLOATING_POINT_ADJUSTMENT || trekkerPityCounter === 159
 				? RATE_UP_5_STARS_TREKKERS[Math.floor(Math.random() * RATE_UP_5_STARS_TREKKERS.length)]
 				: PERMANENT_5_STARS_TREKKERS[Math.floor(Math.random() * PERMANENT_5_STARS_TREKKERS.length)];
 
 		trekkerTotalRecruits++;
-		trekkerPityCounter = 0;
+		if (result.name === 'Shia') {
+			trekkerPityCounter = 0;
+		} else {
+			trekkerPityCounter += 1;
+		}
 		trekkerRecruitsSinceLast4StarOrBetter = 0;
 
 		return result;
@@ -165,7 +169,7 @@
 				: OFF_RATE_4_STARS_TREKKERS[Math.floor(Math.random() * OFF_RATE_4_STARS_TREKKERS.length)];
 
 		trekkerTotalRecruits++;
-		trekkerPityCounter++;
+		trekkerPityCounter += 1;
 		trekkerRecruitsSinceLast4StarOrBetter = 0;
 
 		return result;
@@ -200,7 +204,7 @@
 					PERMANENT_4_STARS_DISCS[Math.floor(Math.random() * PERMANENT_4_STARS_DISCS.length)];
 
 				trekkerTotalRecruits++;
-				trekkerPityCounter++;
+				trekkerPityCounter += 1;
 				trekkerRecruitsSinceLast4StarOrBetter = 0;
 				break;
 			case 'disc':
@@ -224,7 +228,7 @@
 		switch (activeBannerType) {
 			case 'trekker':
 				trekkerTotalRecruits++;
-				trekkerPityCounter++;
+				trekkerPityCounter += 1;
 				trekkerRecruitsSinceLast4StarOrBetter++;
 				break;
 			case 'disc':
@@ -300,6 +304,7 @@
 
 <!-- <button onclick={recruit}>Recruit</button> -->
 
+<p>{trekkerPityCounter}</p>
 <section class="result">
 	{#each trekkerRecruitHistory as { type, rarity, assetID }, i (i + assetID.toString())}
 		{#if type === 'trekker'}
