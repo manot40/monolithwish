@@ -304,7 +304,7 @@
 
 <!-- <button onclick={recruit}>Recruit</button> -->
 
-<p>{trekkerPityCounter}</p>
+<!-- <p>{trekkerPityCounter}</p> -->
 <section class="result">
 	{#each trekkerRecruitHistory as { type, rarity, assetID }, i (i + assetID.toString())}
 		{#if type === 'trekker'}
