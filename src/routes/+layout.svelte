@@ -3,20 +3,24 @@
 
 	import { dev } from '$app/environment';
 	import { getAsset } from '$lib/utils/assets-glob';
-	import { useRegisterSW } from 'virtual:pwa-register/svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
 
-	useRegisterSW({
-		onOfflineReady() {
-			ready ||= true;
-		},
-		onRegistered(registration) {
-			const state = registration?.active?.state;
-			if (state === 'activated') ready ||= true;
+	if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+		function updateReadiness(this: ServiceWorker, payload: Event | true) {
+			const isReady = this?.state === 'installed' || this?.state === 'activated';
+			if (isReady || payload === true) {
+				ready = true;
+				this.removeEventListener('statechange', updateReadiness);
+			}
 		}
-	});
+
+		navigator.serviceWorker.ready.then(function ({ active: sw }) {
+			if (sw?.state === 'installing') sw.addEventListener('statechange', updateReadiness);
+			else if (sw) updateReadiness.bind(sw)(true);
+		});
+	}
 </script>
 
 {#if dev || ready}
