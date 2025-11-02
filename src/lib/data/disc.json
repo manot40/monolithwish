@@ -1,0 +1,30 @@
+{
+	"$schema": "./$schema.json",
+	"items": [
+		{ "type": "disc", "rarity": 5, "assetID": 4005, "name": "Sunlit Blossom" },
+		{ "type": "disc", "rarity": 5, "assetID": 4006, "name": "Witch's Swing" },
+		{ "type": "disc", "rarity": 5, "assetID": 4007, "name": "Midnight Mayhem" },
+		{ "type": "disc", "rarity": 5, "assetID": 4027, "name": "Mystic Brushstrokes" },
+		{ "type": "disc", "rarity": 5, "assetID": 4028, "name": "Daylight Garden" },
+		{ "type": "disc", "rarity": 5, "assetID": 4036, "name": "The Lost Pilgrim" },
+		{ "type": "disc", "rarity": 5, "assetID": 4037, "name": "Claw the Claw" },
+		{ "type": "disc", "rarity": 4, "assetID": 3003, "name": "Scorching Night's End" },
+		{ "type": "disc", "rarity": 4, "assetID": 3004, "name": "Twin Moon Mischief" },
+		{ "type": "disc", "rarity": 4, "assetID": 3005, "name": "★ Bam Bam Girl ★" },
+		{ "type": "disc", "rarity": 4, "assetID": 3006, "name": "Good Night" },
+		{ "type": "disc", "rarity": 4, "assetID": 3007, "name": "Emerald Dream" },
+		{ "type": "disc", "rarity": 4, "assetID": 3008, "name": "Tranquil Retreat" },
+		{ "type": "disc", "rarity": 4, "assetID": 3009, "name": "Rainy Tune" },
+		{ "type": "disc", "rarity": 4, "assetID": 3010, "name": "Steam Syndrome" },
+		{ "type": "disc", "rarity": 4, "assetID": 3011, "name": "Meow Rhythm" },
+		{ "type": "disc", "rarity": 4, "assetID": 3012, "name": "Starry Night Ode" },
+		{ "type": "disc", "rarity": 4, "assetID": 3013, "name": "Leaf Her to Me" },
+		{ "type": "disc", "rarity": 4, "assetID": 3014, "name": "The Knight's Smith" },
+		{ "type": "disc", "rarity": 4, "assetID": 3015, "name": "Unknown Fragrance" },
+		{ "type": "disc", "rarity": 4, "assetID": 3016, "name": "Cage of Roses" },
+		{ "type": "disc", "rarity": 4, "assetID": 3017, "name": "★ Rolling Life ★" },
+		{ "type": "disc", "rarity": 4, "assetID": 3018, "name": "Soda Shopping" },
+		{ "type": "disc", "rarity": 4, "assetID": 3019, "name": "Delusion" },
+		{ "type": "disc", "rarity": 4, "assetID": 3020, "name": "The Shining" }
+	]
+}

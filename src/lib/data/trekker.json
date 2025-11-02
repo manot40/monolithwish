@@ -1,0 +1,28 @@
+{
+	"$schema": "./$schema.json",
+	"items": [
+		{ "type": "trekker", "rarity": 5, "assetID": 11901, "name": "Nanoha" },
+		{ "type": "trekker", "rarity": 5, "assetID": 12501, "name": "Freesia" },
+		{ "type": "trekker", "rarity": 5, "assetID": 13201, "name": "Minova" },
+		{ "type": "trekker", "rarity": 5, "assetID": 13501, "name": "Mystique" },
+		{ "type": "trekker", "rarity": 5, "assetID": 14101, "name": "Chixia" },
+		{ "type": "trekker", "rarity": 5, "assetID": 14901, "name": "Gerie" },
+		{ "type": "trekker", "rarity": 5, "assetID": 15601, "name": "Nazuna" },
+		{ "type": "trekker", "rarity": 4, "assetID": 10301, "name": "Amber" },
+		{ "type": "trekker", "rarity": 4, "assetID": 10701, "name": "Tilia" },
+		{ "type": "trekker", "rarity": 4, "assetID": 10801, "name": "Kasimira" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11101, "name": "Iris" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11201, "name": "Noya" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11301, "name": "Shimiao" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11601, "name": "Ridge" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11701, "name": "Jinglin" },
+		{ "type": "trekker", "rarity": 4, "assetID": 11801, "name": "Coronis" },
+		{ "type": "trekker", "rarity": 4, "assetID": 12001, "name": "Canace" },
+		{ "type": "trekker", "rarity": 4, "assetID": 12301, "name": "Ann" },
+		{ "type": "trekker", "rarity": 4, "assetID": 12601, "name": "Flora" },
+		{ "type": "trekker", "rarity": 4, "assetID": 12701, "name": "Teresa" },
+		{ "type": "trekker", "rarity": 4, "assetID": 14201, "name": "Cosette" },
+		{ "type": "trekker", "rarity": 4, "assetID": 14701, "name": "Caramel" },
+		{ "type": "trekker", "rarity": 4, "assetID": 15001, "name": "Laru" }
+	]
+}

@@ -1,0 +1,32 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"properties": {
+		"items": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"type": {
+						"type": "string",
+						"description": "Either disc or trekker",
+						"enum": ["trekker", "disc"]
+					},
+					"rarity": {
+						"type": "integer",
+						"description": "The rarity level",
+						"enum": [5, 4, 3]
+					},
+					"assetID": {
+						"type": "number",
+						"description": "The unique asset identifier."
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": ["type", "rarity", "assetID", "name"],
+				"additionalProperties": false
+			}
+		}
+	}
+}
