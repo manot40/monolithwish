@@ -1,24 +1,24 @@
-export const assets: Record<string, string> = import.meta.glob('$lib/images/*.png', {
+export const assets: Record<string, string> = import.meta.glob(
+	'$lib/assets/images/*.{png,avif,webp}',
+	{ eager: true, query: '?url', import: 'default' }
+);
+
+export const result: Record<string, string> = import.meta.glob('$lib/assets/images/recruit/*.png', {
 	eager: true,
 	query: '?url',
 	import: 'default'
 });
 
-export const result: Record<string, string> = import.meta.glob('$lib/images/recruit/*.png', {
-	eager: true,
-	query: '?url',
-	import: 'default'
-});
-
-export const splashAssets: Record<string, string> = import.meta.glob('$lib/videos/*.mp4', {
+export const splashAssets: Record<string, string> = import.meta.glob('$lib/assets/videos/*.mp4', {
 	eager: true,
 	query: 'url',
 	import: 'default'
 });
 
-export const getAsset = (key: string) => assets[`/src/lib/images/${key}.png`];
+const ASSET_BASE_PATH = '/src/lib/assets';
 
+export const getVideo = (key: string) => splashAssets[`${ASSET_BASE_PATH}/videos/${key}.mp4`];
+export const getAsset = (key: string, ext = 'png' as 'png' | 'avif' | 'webp') =>
+	assets[`${ASSET_BASE_PATH}/images/${key}.${ext}`];
 export const getRecruit = (type: 'disc' | 'trekker', id: number) =>
-	result[`/src/lib/images/recruit/${type}_${id}.png`];
-
-export const getVideo = (key: string) => splashAssets[`/src/lib/videos/${key}.mp4`];
+	result[`${ASSET_BASE_PATH}/images/recruit/${type}_${id}.png`];

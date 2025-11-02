@@ -6,9 +6,9 @@ import type {
 	RecruitWithRate
 } from '$lib/types/common';
 
-import lowRarity from '$lib/data/low_rarity.json' with { type: 'json' };
-import permaDisc from '$lib/data/disc.json' with { type: 'json' };
-import permaTrekker from '$lib/data/trekker.json' with { type: 'json' };
+import lowRarity from '$lib/data/gacha-pools/low_rarity.json' with { type: 'json' };
+import permaDisc from '$lib/data/gacha-pools/disc.json' with { type: 'json' };
+import permaTrekker from '$lib/data/gacha-pools/trekker.json' with { type: 'json' };
 
 export class Banner {
 	static readonly BASE_SR_CHANCE = 0.08;

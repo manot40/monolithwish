@@ -9,6 +9,11 @@
 	color: var(--color-text);
 }
 
+.size-screen {
+	width: 100dvw;
+	height: 100dvh;
+}
+
 body {
 	min-height: 100vh;
 	margin: 0;

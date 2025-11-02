@@ -2,63 +2,27 @@
 	import type { RecruitHistory } from '$lib/types/common';
 	import type { UserAction } from '$lib/types/svelte';
 
-	import gacha_ten from '$lib/images/btn_gacha_ten.png';
 	import RecruitCard from '$lib/components/RecruitCard.svelte';
+	import MultiPullBtn from '$lib/assets/images/btn_gacha_ten.png';
 
-	import { Banner } from '$lib/utils/gacha';
-	import { getVideo } from '$lib/utils/assets-glob';
-
-	const banners = {
-		shia: new Banner({
-			type: 'trekker',
-			name: 'Tide to The Full Moon',
-			featured: {
-				sr: [10701, 10801],
-				ssr: { type: 'trekker', rarity: 5, assetID: 15501, name: 'Shia' }
-			}
-		}),
-		shiaDisc: new Banner({
-			type: 'disc',
-			name: 'Ocean Meets The Sky',
-			featured: {
-				sr: [3004, 3006],
-				ssr: { type: 'disc', rarity: 5, assetID: 4038, name: 'Ripples of Nostalgia' }
-			}
-		}),
-		chitose: new Banner({
-			type: 'trekker',
-			name: 'Tide to The Full Moon',
-			featured: {
-				sr: [11701, 12701],
-				ssr: { type: 'trekker', rarity: 5, assetID: 14401, name: 'Chitose' }
-			}
-		}),
-		chitoseDisc: new Banner({
-			type: 'disc',
-			name: 'Moon Upon Still Waters',
-			featured: {
-				sr: [3005, 3009],
-				ssr: { type: 'disc', rarity: 5, assetID: 4026, name: 'Sword Against Stream' }
-			}
-		}),
-		trekker: new Banner({
-			type: 'trekker',
-			name: "Boss's Regulars"
-		}),
-		disc: new Banner({
-			type: 'disc',
-			name: 'Memories Rewind'
-		})
-	};
+	import { banners, type Banner } from '$lib/data/banners';
+	import { getAsset, getVideo } from '$lib/utils/assets-glob';
 
 	let video = $state<string>();
 	let activeBanner = $state<Banner>(banners.shia);
-	let recruitWindow: RecruitHistory[] = $state([]);
+	let recruitWindow = $state<RecruitHistory[]>();
 
 	const hasSR = $derived(!!recruitWindow?.some((r) => r.rarity === 4));
 	const hasSSR = $derived(!!recruitWindow?.some((r) => r.rarity === 5));
 	const hasPity = $derived(!!recruitWindow?.some((r) => r.rarity === 5 && r.isPity));
 	const bannerType = $derived(activeBanner.config.type);
+
+	const bgImage = $derived(
+		(() => {
+			if (video) return getAsset('trekker_loop', 'avif');
+			return getAsset((!recruitWindow && activeBanner.config.cover) || 'bg_gacha_result', 'avif');
+		})()
+	);
 
 	function rollMulti() {
 		recruitWindow = activeBanner.rollMulti();
@@ -93,34 +57,45 @@
 	<title>Monolith Wish | Home</title>
 </svelte:head>
 
-{#if video}
-	<div class="vid-container">
-		<!-- svelte-ignore a11y_media_has_caption -->
-		<video
-			autoplay
-			class="video"
-			loop={video.includes('loop')}
-			controls={false}
-			onclick={handleVideoTransition}
-			onended={handleVideoTransition}
-		>
-			<source src={video} type="video/mp4" />
-		</video>
-	</div>
-{:else}
-	<section class="result">
-		{#each recruitWindow as { type, rarity, assetID }, i (i + assetID.toString())}
-			<RecruitCard {type} {rarity} {assetID} />
-		{/each}
-	</section>
-
-	<button onclick={rollMulti}>
-		<img src={gacha_ten} alt="" />
-		<div>Recruit x10</div>
-	</button>
-{/if}
+<main style="background-image: url('{bgImage}');">
+	{#if video}
+		<div class="vid-container size-screen">
+			<!-- svelte-ignore a11y_media_has_caption -->
+			<video
+				autoplay
+				class="video"
+				loop={video.includes('loop')}
+				controls={false}
+				onclick={handleVideoTransition}
+				onended={handleVideoTransition}
+			>
+				<source src={video} type="video/mp4" />
+			</video>
+		</div>
+	{:else}
+		{#if recruitWindow}
+			<section class="results">
+				{#each recruitWindow as { type, rarity, assetID }, i (i + assetID.toString())}
+					<RecruitCard {type} {rarity} {assetID} />
+				{/each}
+			</section>
+		{/if}
+		<button onclick={rollMulti}>
+			<img src={MultiPullBtn} alt="" />
+			<div>Recruit x10</div>
+		</button>
+	{/if}
+</main>
 
 <style>
+	main {
+		height: 100dvh;
+		overflow: hidden;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+
 	button {
 		position: absolute;
 		display: grid;
@@ -141,7 +116,7 @@
 		margin: 0.75em auto;
 	}
 
-	.result {
+	.results {
 		padding: 5%;
 		height: 100%;
 		max-width: 1920px;
@@ -155,8 +130,6 @@
 		position: fixed;
 		top: 0;
 		left: 0;
-		width: 100dvw;
-		height: 100dvh;
 		overflow: hidden;
 		z-index: 1;
 	}
