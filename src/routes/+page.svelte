@@ -75,8 +75,8 @@
 	{:else}
 		{#if recruitWindow}
 			<section class="results">
-				{#each recruitWindow as { type, rarity, assetID }, i (i + assetID.toString())}
-					<RecruitCard {type} {rarity} {assetID} />
+				{#each recruitWindow as recruit, i (i + recruit.assetID.toString())}
+					<RecruitCard {...recruit} />
 				{/each}
 			</section>
 		{/if}

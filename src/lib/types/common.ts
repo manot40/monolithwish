@@ -2,7 +2,12 @@ import type { Writable } from 'svelte/store';
 
 export type AssetID = number;
 export type Featured = Recruit | AssetID;
-export type RecruitType = 'trekker' | 'disc';
+export type RecruitType = keyof typeof RecruitTypeEnum;
+
+export enum RecruitTypeEnum {
+	trekker = 0,
+	disc = 1
+}
 
 export type Recruit = {
 	name: string;
@@ -18,6 +23,7 @@ export type RecruitWithRate = Recruit & {
 
 export type RecruitHistory = Omit<Recruit, 'name' | 'type'> & {
 	time: number;
+	type: 0 | 1;
 	isPity: boolean;
 };
 

@@ -8,6 +8,7 @@ import type {
 } from '$lib/types/common';
 
 import { browser } from '$app/environment';
+import { RecruitTypeEnum } from '$lib/types/common';
 
 import lowRarity from '$lib/data/gacha-pools/low_rarity.json' with { type: 'json' };
 import permaDisc from '$lib/data/gacha-pools/disc.json' with { type: 'json' };
@@ -139,8 +140,8 @@ export class Banner {
 
 	private toRecruitHistory(item: RecruitWithRate, isPity = false): RecruitHistory {
 		// eslint-disable-next-line
-		const { rate: _1, name: _2, type: _3, ...recruit } = item;
-		const data = { ...recruit, isPity, time: Date.now() };
+		const { rate: _1, name: _2, type, ...recruit } = item;
+		const data = { ...recruit, isPity, time: Date.now(), type: RecruitTypeEnum[type] };
 		const isEarlyLuck = recruit.rarity === 5 && (!this.featuredSSR || recruit.isFeatured);
 
 		if (isEarlyLuck) this.pityCounter.set(0);
