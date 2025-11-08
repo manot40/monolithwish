@@ -9,26 +9,40 @@
 	import { getAsset, getVideo } from '$lib/utils/assets-glob';
 
 	let video = $state<string>();
-	let activeBanner = $state<Banner>(banners.shia);
-	let recruitWindow = $state<RecruitHistory[]>();
+	let gachaResult = $state.raw<RecruitHistory[]>();
+	let activeBanner = $state.raw<Banner>(banners.shia);
 
-	const hasSR = $derived(!!recruitWindow?.some((r) => r.rarity === 4));
-	const hasSSR = $derived(!!recruitWindow?.some((r) => r.rarity === 5));
-	const hasPity = $derived(!!recruitWindow?.some((r) => r.rarity === 5 && r.isPity));
+	const loop = $derived(video?.includes('loop'));
+	const bgImage = $derived.by(() => {
+		if (video) return getAsset('trekker_loop', 'avif');
+		return getAsset((!gachaResult && activeBanner.config.cover) || 'bg_gacha_result', 'avif');
+	});
+	const isRecruit = $derived.by(() => {
+		const result = {} as Record<'hasSR' | 'hasSSR' | 'onlySSR', boolean>;
+		if (!gachaResult) return result;
+
+		let five = 0,
+			four = 0;
+		gachaResult.forEach((r) => {
+			if (r.rarity === 5) {
+				five++;
+				result.hasSSR = true;
+			} else if (r.rarity === 4) {
+				four++;
+				result.hasSR = true;
+			}
+		});
+
+		result.onlySSR = five > 0 && four === 0;
+		return result;
+	});
 	const bannerType = $derived(activeBanner.config.type);
 
-	const bgImage = $derived(
-		(() => {
-			if (video) return getAsset('trekker_loop', 'avif');
-			return getAsset((!recruitWindow && activeBanner.config.cover) || 'bg_gacha_result', 'avif');
-		})()
-	);
-
 	function rollMulti() {
-		recruitWindow = activeBanner.rollMulti();
+		gachaResult = activeBanner.rollMulti();
 		if (bannerType === 'trekker')
-			video = getVideo(hasSSR ? 'trekker_initial_1_ssr' : 'trekker_initial_1');
-		else video = getVideo(`disc_10_${hasSSR ? 'ssr_1' : 'sr'}`);
+			video = getVideo(isRecruit.hasSSR ? 'trekker_initial_1_ssr' : 'trekker_initial_1');
+		else video = getVideo(`disc_10_${isRecruit.hasSSR ? 'ssr_1' : 'sr'}`);
 	}
 
 	function handleVideoTransition(e: UserAction<MouseEvent | Event, HTMLVideoElement>) {
@@ -43,8 +57,8 @@
 			e.currentTarget.load();
 		} else if (video?.includes('loop')) {
 			if (e instanceof MouseEvent) {
-				if (hasSSR) video = getVideo(`trekker_result_ssr_${hasPity ? 2 : 1}`);
-				else video = getVideo(hasSR ? 'trekker_result_sr' : 'trekker_result');
+				if (isRecruit.hasSSR) video = getVideo(`trekker_result_ssr_${isRecruit.onlySSR ? 2 : 1}`);
+				else video = getVideo(isRecruit.hasSR ? 'trekker_result_sr' : 'trekker_result');
 				e.currentTarget.load();
 			}
 		} else {
@@ -62,9 +76,9 @@
 		<div class="vid-container size-screen">
 			<!-- svelte-ignore a11y_media_has_caption -->
 			<video
+				{loop}
 				autoplay
 				class="video"
-				loop={video.includes('loop')}
 				controls={false}
 				onclick={handleVideoTransition}
 				onended={handleVideoTransition}
@@ -73,10 +87,10 @@
 			</video>
 		</div>
 	{:else}
-		{#if recruitWindow}
+		{#if gachaResult}
 			<section class="results">
-				{#each recruitWindow as recruit, i (i + recruit.assetID.toString())}
-					<RecruitCard {...recruit} />
+				{#each gachaResult as result, i (i + result.id.toString())}
+					<RecruitCard {...result} />
 				{/each}
 			</section>
 		{/if}

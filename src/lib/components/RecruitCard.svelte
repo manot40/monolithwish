@@ -1,23 +1,19 @@
 <script lang="ts">
-	import { RecruitTypeEnum, type RecruitHistory } from '$lib/types/common';
+	import type { RecruitHistory } from '$lib/types/common';
 
 	import { getAsset, getRecruit } from '$lib/utils/assets-glob';
 
-	let { type, rarity, assetID }: RecruitHistory = $props();
-
-	const typeKey = $derived(RecruitTypeEnum.disc === type ? 'disc' : 'trekker');
+	let { type, rarity, id }: RecruitHistory = $props();
 </script>
 
-<div class="main" data-type={typeKey}>
+<div class="main" data-type={type}>
 	<img class="bg bg_{rarity}" src={getAsset(`fx_ui_character_gacha_${rarity}`)} alt="" />
 	<div class="card">
-		<img class="card_border" src={getAsset(`db_gacha_${typeKey}_${rarity}`)} alt="" />
-		<img class="recruit" src={getRecruit(typeKey, assetID)} alt="" />
+		<img class="card_border" src={getAsset(`db_gacha_${type}_${rarity}`)} alt="" />
+		<img class="recruit" src={getRecruit(type, id)} alt="" />
 		<img
 			class="foreground"
-			src={getAsset(
-				type == RecruitTypeEnum.disc ? `zs_gacha_outfit` : `zs_gacha_character_${rarity}`
-			)}
+			src={getAsset(type == 'disc' ? `zs_gacha_outfit` : `zs_gacha_character_${rarity}`)}
 			alt=""
 		/>
 		<img class="rarity" src={getAsset(`rare_character_text_${rarity}`)} alt="" />

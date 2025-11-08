@@ -12,7 +12,7 @@ export function distribute(pool: RecruitWithRate[]): RecruitWithRate[] {
 	return pool.map((item) => ({ ...item, rate: item.rate + distributedChance }));
 }
 
-export function pull(pool: RecruitWithRate[]): RecruitWithRate | undefined {
+export function pull<T extends RecruitWithRate>(pool: T[]): T {
 	const [randomInt] = crypto.getRandomValues(new Uint32Array(1));
 	const roll = randomInt / (0xffffffff + 1);
 
@@ -22,8 +22,9 @@ export function pull(pool: RecruitWithRate[]): RecruitWithRate | undefined {
 		if (roll < cumulativeChance) return item;
 	}
 
-	const item = pool.at(-1);
-	if (item) return item;
+	// This is a fallback in case no item is selected
+	// Shouldn't be happened in typical case
+	return getRandomValue(pool);
 }
 
 export function handleSRPityHit(

@@ -8,12 +8,12 @@ import type {
 } from '$lib/types/common';
 
 import { browser } from '$app/environment';
-import { RecruitTypeEnum } from '$lib/types/common';
 
 import lowRarity from '$lib/data/gacha-pools/low_rarity.json' with { type: 'json' };
 import permaDisc from '$lib/data/gacha-pools/disc.json' with { type: 'json' };
 import permaTrekker from '$lib/data/gacha-pools/trekker.json' with { type: 'json' };
 
+import { destr } from 'destr';
 import { getRandomValue, handleSRPityHit, persistHistory, pull } from './helper';
 
 export class Banner {
@@ -21,50 +21,50 @@ export class Banner {
 	static readonly BASE_SSR_CHANCE = 0.02;
 	static readonly SSR_PITY_THRESHOLD = 120;
 
-	readonly pool: RecruitWithRate[];
+	private readonly pool: RecruitWithRate[];
 	private readonly srPool: RecruitWithRate[];
 	private readonly ssrPool: RecruitWithRate[];
 
-	private featuredSSR: RecruitWithRate | null = null;
 	private pityCounter: Writable<number>;
+	private featuredSSR: RecruitWithRate | null = null;
 
-	public config: Omit<BannerData, 'pityCounter'>;
+	public config: Omit<BannerData, 'pityCounter' | 'featured'>;
 
 	public get historyKey() {
-		const { featured, type } = this.config;
-		return `${featured ? 'limited-' : ''}${type}-history` as const;
+		const { type } = this.config;
+		return `${this.featuredSSR ? 'limited-' : ''}${type}-history` as const;
 	}
 
-	private _history: RecruitHistory[] = [];
-	public get history(): RecruitHistory[] {
-		return this._history;
+	#history: RecruitHistory[] = [];
+	get history(): RecruitHistory[] {
+		return this.#history;
 	}
-	public set history(value: RecruitHistory[]) {
+	set history(value: RecruitHistory[]) {
 		if (!browser) return;
-		this._history = value;
+		this.#history = value;
 		persistHistory(this.historyKey, value);
 	}
 
 	constructor(config: BannerData) {
-		const { pityCounter, ...config_ } = config;
+		const { pityCounter, featured, ...cfg } = config;
 
-		this.config = config_;
+		this.config = cfg;
 		this.pityCounter = pityCounter;
 
-		const isDisc = config_.type === 'disc';
+		const isDisc = cfg.type === 'disc';
 		const permaPool = <Recruit[]>(isDisc ? permaDisc.items : permaTrekker.items);
 
 		const lrPool = lowRarity.items as Recruit[];
 		const [ssrPool, srPool] = permaPool.reduce<[Recruit[], Recruit[]]>(
 			(acc, item) => {
-				if (config_.featured) {
+				if (featured) {
 					const flagFeatured = (target: Featured) => {
 						const feat = toRecruit(target);
-						if (feat.assetID === item.assetID) item.isFeatured = true;
+						if (feat.id === item.id) item.isFeatured = true;
 					};
 
-					if (item.rarity === 4) config_.featured.sr.forEach(flagFeatured);
-					else if (item.rarity === 5) flagFeatured(config_.featured.ssr);
+					if (item.rarity === 4) featured.sr.forEach(flagFeatured);
+					else if (item.rarity === 5) flagFeatured(featured.ssr);
 				}
 
 				const [ssr, sr] = acc;
@@ -84,22 +84,22 @@ export class Banner {
 		function toRecruit(item: Featured): Recruit {
 			if (typeof item != 'number') return item;
 			const id = item;
-			const recruit = permaPool.find((item) => item.assetID === id);
+			const recruit = permaPool.find((item) => item.id === id);
 			if (!recruit) throw new Error(`Recruit not found for ID: ${item}`);
 			return recruit;
 		}
 
-		if (config_.featured) {
+		if (featured) {
 			const srChance = Banner.BASE_SR_CHANCE * 0.5;
 			cumSRChance -= srChance;
 			const ssrChance = Banner.BASE_SSR_CHANCE * (isDisc ? 0.75 : 0.5);
 			cumSSRChance -= ssrChance;
 
-			const ssr = (this.featuredSSR = { rate: ssrChance, ...toRecruit(config_.featured.ssr) });
+			const ssr = (this.featuredSSR = { rate: ssrChance, ...toRecruit(featured.ssr) });
 			this.pool.push(ssr);
 			this.ssrPool.push(ssr);
 
-			config_.featured.sr.forEach((item, _, sr) => {
+			featured.sr.forEach((item, _, sr) => {
 				const recruit = { rate: srChance / sr.length, ...toRecruit(item) };
 				this.pool.push(recruit);
 				this.srPool.push(recruit);
@@ -124,7 +124,16 @@ export class Banner {
 
 		if (browser) {
 			const fromStorage = localStorage.getItem(this.historyKey)?.trim();
-			if (fromStorage && /^\[.*\]$/.test(fromStorage)) this._history = JSON.parse(fromStorage);
+			if (fromStorage && /^\[.*\]$/.test(fromStorage)) {
+				const history = (this.history = destr<RecruitHistory[]>(fromStorage) ?? []);
+				const checkRange = history.slice(-Banner.SSR_PITY_THRESHOLD).reverse();
+				const pityIdx = checkRange.findIndex((item) => {
+					if (featured) return item.id === toRecruit(featured.ssr).id;
+					else return item.rarity === 5;
+				});
+
+				if (pityIdx !== -1) this.pityCounter.set(pityIdx);
+			}
 		}
 	}
 
@@ -140,13 +149,13 @@ export class Banner {
 
 	private toRecruitHistory(item: RecruitWithRate, isPity = false): RecruitHistory {
 		// eslint-disable-next-line
-		const { rate: _1, name: _2, type, ...recruit } = item;
-		const data = { ...recruit, isPity, time: Date.now(), type: RecruitTypeEnum[type] };
-		const isEarlyLuck = recruit.rarity === 5 && (!this.featuredSSR || recruit.isFeatured);
+		const { rate: _1, name: _2, isFeatured, ...recruit } = item;
+		const isEarlyLuck = recruit.rarity === 5 && (!this.featuredSSR || isFeatured);
 
 		if (isEarlyLuck) this.pityCounter.set(0);
 		else this.pityCounter.set(get(this.pityCounter) + 1);
 
+		const data = { ...recruit, time: Date.now(), isPity: isPity || undefined };
 		this.history = [...this.history, data];
 		return data;
 	}
@@ -164,10 +173,7 @@ export class Banner {
 			return this.toRecruitHistory(result, true);
 		}
 
-		const pulled = pull(this.pool);
-
-		if (!pulled) throw new Error('No recruit found');
-		return this.toRecruitHistory(pulled);
+		return this.toRecruitHistory(pull(this.pool));
 	}
 
 	rollMulti(): RecruitHistory[] {

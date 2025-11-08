@@ -16,7 +16,7 @@
 						"description": "The rarity level",
 						"enum": [5, 4, 3]
 					},
-					"assetID": {
+					"id": {
 						"type": "number",
 						"description": "The unique asset identifier."
 					},
@@ -24,7 +24,7 @@
 						"type": "string"
 					}
 				},
-				"required": ["type", "rarity", "assetID", "name"],
+				"required": ["type", "rarity", "id", "name"],
 				"additionalProperties": false
 			}
 		}
