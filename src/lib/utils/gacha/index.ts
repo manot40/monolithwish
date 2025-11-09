@@ -25,7 +25,8 @@ export class Banner {
 	private readonly srPool: RecruitWithRate[];
 	private readonly ssrPool: RecruitWithRate[];
 
-	private pityCounter: Writable<number>;
+	private pityCounter = 0;
+	private counterStore: Writable<number>;
 	private featuredSSR: RecruitWithRate | null = null;
 
 	public config: Omit<BannerData, 'pityCounter' | 'featured'>;
@@ -49,7 +50,9 @@ export class Banner {
 		const { pityCounter, featured, ...cfg } = config;
 
 		this.config = cfg;
-		this.pityCounter = pityCounter;
+		(this.counterStore = pityCounter).subscribe((value) => {
+			this.pityCounter = value;
+		});
 
 		const isDisc = cfg.type === 'disc';
 		const permaPool = <Recruit[]>(isDisc ? permaDisc.items : permaTrekker.items);
@@ -82,11 +85,18 @@ export class Banner {
 		let cumSSRChance = Banner.BASE_SSR_CHANCE;
 
 		function toRecruit(item: Featured): Recruit {
-			if (typeof item != 'number') return item;
-			const id = item;
-			const recruit = permaPool.find((item) => item.id === id);
-			if (!recruit) throw new Error(`Recruit not found for ID: ${item}`);
-			return recruit;
+			if (typeof item != 'number') {
+				item.isFeatured = true;
+				return item;
+			} else {
+				const id = item;
+				const recruit = permaPool.find((item) => item.id === id);
+
+				if (!recruit) throw new Error(`Recruit not found for ID: ${item}`);
+
+				recruit.isFeatured = true;
+				return recruit;
+			}
 		}
 
 		if (featured) {
@@ -132,7 +142,7 @@ export class Banner {
 					else return item.rarity === 5;
 				});
 
-				if (pityIdx !== -1) this.pityCounter.set(pityIdx);
+				if (pityIdx !== -1) this.counterStore.set(pityIdx);
 			}
 		}
 	}
@@ -144,7 +154,7 @@ export class Banner {
 	}
 
 	private get SSRPityHit() {
-		return get(this.pityCounter) === Banner.SSR_PITY_THRESHOLD;
+		return this.pityCounter === Banner.SSR_PITY_THRESHOLD;
 	}
 
 	private toRecruitHistory(item: RecruitWithRate, isPity = false): RecruitHistory {
@@ -152,8 +162,8 @@ export class Banner {
 		const { rate: _1, name: _2, isFeatured, ...recruit } = item;
 		const isEarlyLuck = recruit.rarity === 5 && (!this.featuredSSR || isFeatured);
 
-		if (isEarlyLuck) this.pityCounter.set(0);
-		else this.pityCounter.set(get(this.pityCounter) + 1);
+		if (isEarlyLuck) this.counterStore.set(0);
+		else this.counterStore.set(this.pityCounter + 1);
 
 		const data = { ...recruit, time: Date.now(), isPity: isPity || undefined };
 		this.history = [...this.history, data];
@@ -162,14 +172,14 @@ export class Banner {
 
 	roll(): RecruitHistory {
 		if (this.SSRPityHit) {
-			this.pityCounter.set(0);
+			this.counterStore.set(0);
 			console.info('SSR Pity Hit!');
 			return this.toRecruitHistory(this.featuredSSR ?? getRandomValue(this.ssrPool), true);
 		} else if (this.SRPityHit) {
 			const result = handleSRPityHit(this.srPool, this.ssrPool, Banner.BASE_SSR_CHANCE);
 			console.info('SR Pity Hit!', result.name);
 
-			if (result.rarity === 5) this.pityCounter.set(0);
+			if (result.rarity === 5) this.counterStore.set(0);
 			return this.toRecruitHistory(result, true);
 		}
 
